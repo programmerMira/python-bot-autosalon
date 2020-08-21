@@ -19,7 +19,11 @@ def welcome(message):
 
 @bot.message_handler(commands=['help'])
 def help(message):
-    bot.send_message(message.chat.id, "Доступные команды:\n/start\n/help\n/add_service [title, duration, cost]\n/view_servises \n/add_order [order number] \n/view_my_orders \n/view_orders \n/view_clients".format(parse_mode="html"))
+    bot.send_message(message.chat.id, "Доступные команды:\n/start\n/help\n/view_servises \n/add_order [order number] \n/view_my_orders".format(parse_mode="html"))
+
+@bot.message_handler(commands=['admin_help'])
+def admin_help(message):
+    bot.send_message(message.chat.id, "Доступные команды:\n/add_service [title, duration, cost]\n/view_orders \n/view_clients".format(parse_mode="html"))
 
 @bot.message_handler(commands=['add_service'])
 def add_service(message):
@@ -48,10 +52,13 @@ def view_servises(message):
 @bot.message_handler(commands=['add_order'])
 def add_order(message):
     msg_text = message.text.replace("/add_order","").strip().replace(" ","")
-    db_worker = SQLighter(config.database_name)
-    db_worker.insert_order(message.chat.username,msg_text)
-    db_worker.close()
-    bot.send_message(message.chat.id, "<i>«Услуга была добавлена.»</i>", parse_mode="html")
+    if len(msg_text)>0:
+        db_worker = SQLighter(config.database_name)
+        db_worker.insert_order(message.chat.username,msg_text)
+        db_worker.close()
+        bot.send_message(message.chat.id, "<i>«Услуга была добавлена.»</i>", parse_mode="html")
+    else:
+        bot.send_message(message.chat.id,"<i>Неверные входные данные</i>", parse_mode="html")
 
 @bot.message_handler(commands=['view_my_orders'])
 def view_my_orders(message):
